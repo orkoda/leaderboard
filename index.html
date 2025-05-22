@@ -11,7 +11,7 @@
       margin: 50px auto;
       padding: 20px;
       border-radius: 8px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 8px 16px rgba(0, 209, 245, 0.1);
     }
 
     .sidebar {
@@ -20,13 +20,16 @@
       padding: 1.2rem;
       border-radius: 8px;
       margin-right: 20px;
+      border: 1px solid rgba(0, 209, 245, 0.1);
     }
 
     .sidebar-title {
-      color: #00ffd9;
+      color: #00D1F5;
       margin-bottom: 1.2rem;
       font-size: 1rem;
       font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
     .sidebar-item {
@@ -38,12 +41,14 @@
       transition: all 0.2s;
       color: #8b9bb4;
       font-size: 0.9rem;
+      border: 1px solid transparent;
     }
 
     .sidebar-item.active,
     .sidebar-item:hover {
-      background: #00ffd9;
+      background: #00D1F5;
       color: #1a2634;
+      box-shadow: 0 2px 8px rgba(0, 209, 245, 0.2);
     }
 
     .leaderboard {
@@ -51,14 +56,17 @@
       background: rgba(0, 0, 0, 0.2);
       border-radius: 8px;
       padding: 1.5rem;
+      border: 1px solid rgba(0, 209, 245, 0.1);
     }
 
     .leaderboard-title {
-      color: #00ffd9;
+      color: #00D1F5;
       font-size: 1.5rem;
       text-align: center;
       margin-bottom: 0.5rem;
       font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 2px;
     }
 
     .leaderboard-subtitle {
@@ -66,7 +74,7 @@
       text-align: center;
       margin-bottom: 1.5rem;
       font-size: 0.8rem;
-      border-bottom: 1px solid #00ffd9;
+      border-bottom: 1px solid #00D1F5;
       padding-bottom: 1rem;
     }
 
@@ -77,12 +85,13 @@
     }
 
     th {
-      color: #00ffd9;
+      color: #00D1F5;
       font-weight: 500;
       padding: 0.8rem;
       text-align: left;
       text-transform: uppercase;
       font-size: 0.8rem;
+      letter-spacing: 1px;
     }
 
     td {
@@ -90,6 +99,11 @@
       background: rgba(255, 255, 255, 0.03);
       color: #8b9bb4;
       font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+
+    tr:hover td {
+      background: rgba(0, 209, 245, 0.05);
     }
 
     tr td:first-child {
@@ -108,7 +122,7 @@
     }
 
     .time {
-      color: #00ffd9;
+      color: #00D1F5;
       font-weight: 500;
     }
 
