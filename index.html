@@ -1,19 +1,129 @@
-<template>
-  <div class="scoreboard">
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    .scoreboard {
+      display: flex;
+      background: #1a2634;
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      min-height: 600px;
+      padding: 20px;
+    }
+
+    .sidebar {
+      width: 240px;
+      background: rgba(0, 0, 0, 0.2);
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin-right: 20px;
+    }
+
+    .sidebar-title {
+      color: #00ffd9;
+      margin-bottom: 1.5rem;
+      font-size: 1.2rem;
+      font-weight: 500;
+    }
+
+    .sidebar-item {
+      padding: 0.75rem 1rem;
+      margin-bottom: 0.5rem;
+      border-radius: 4px;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.05);
+      transition: all 0.2s;
+      color: #8b9bb4;
+    }
+
+    .sidebar-item.active,
+    .sidebar-item:hover {
+      background: #00ffd9;
+      color: #1a2634;
+    }
+
+    .leaderboard {
+      flex: 1;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+      padding: 2rem;
+    }
+
+    .leaderboard-title {
+      color: #00ffd9;
+      font-size: 2rem;
+      text-align: center;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    .leaderboard-subtitle {
+      color: #8b9bb4;
+      text-align: center;
+      margin-bottom: 2rem;
+      font-size: 0.9rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 0.5rem;
+    }
+
+    th {
+      color: #00ffd9;
+      font-weight: 500;
+      padding: 1rem;
+      text-align: left;
+      text-transform: uppercase;
+      font-size: 0.9rem;
+    }
+
+    td {
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.03);
+      color: #8b9bb4;
+    }
+
+    tr td:first-child {
+      border-top-left-radius: 4px;
+      border-bottom-left-radius: 4px;
+    }
+
+    tr td:last-child {
+      border-top-right-radius: 4px;
+      border-bottom-right-radius: 4px;
+    }
+
+    .rank {
+      color: #ffd700;
+      font-weight: 500;
+    }
+
+    .length {
+      color: #00ffd9;
+      font-weight: 500;
+    }
+
+    .player {
+      color: #ffffff;
+    }
+
+    .time {
+      color: #8b9bb4;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div id="scoreboard" class="scoreboard" style="display: none;">
     <div class="sidebar">
       <h3 class="sidebar-title">Fish Species</h3>
-      <div
-        v-for="level in levels"
-        :key="level"
-        :class="['sidebar-item', { active: selectedLevel === level }]"
-        @click="selectedLevel = level"
-      >
-        Level {{ level }}
-      </div>
+      <div id="sidebar"></div>
     </div>
 
     <div class="leaderboard">
-      <h2 class="leaderboard-title">FISH LENGTH LEADERBOARD</h2>
+      <h2 id="board-title" class="leaderboard-title">FISH LENGTH LEADERBOARD</h2>
       <p class="leaderboard-subtitle">The largest fish that have been caught, and the anglers who caught them!</p>
       
       <table>
@@ -25,156 +135,94 @@
             <th>Caught</th>
           </tr>
         </thead>
-        <tbody>
-          <tr v-for="(entry, index) in filteredScores" :key="entry.id">
-            <td class="rank">#{{ index + 1 }}</td>
-            <td class="length">{{ entry.time_taken }}"</td>
-            <td class="player">{{ entry.citizenid }}</td>
-            <td class="time">{{ formatTimeAgo(entry.timestamp) }}</td>
-          </tr>
+        <tbody id="score-table">
         </tbody>
       </table>
     </div>
   </div>
-</template>
 
-<script setup>
-import { ref, computed, onMounted } from 'vue'
-import { fetchNui } from '../utils'
+  <script>
+    let allScores = []
+    let currentLevel = 1
 
-const scores = ref([])
-const selectedLevel = ref(1)
-const levels = ref([1, 2, 3, 4, 5])
+    function timeAgo(timestamp) {
+      const now = new Date();
+      const then = new Date(timestamp);
+      const seconds = Math.floor((now - then) / 1000);
 
-const filteredScores = computed(() => {
-  return scores.value
-    .filter((entry) => entry.level === selectedLevel.value)
-    .sort((a, b) => a.time_taken - b.time_taken)
-})
+      const intervals = [
+        { label: 'year', seconds: 31536000 },
+        { label: 'month', seconds: 2592000 },
+        { label: 'day', seconds: 86400 },
+        { label: 'hour', seconds: 3600 },
+        { label: 'minute', seconds: 60 },
+        { label: 'second', seconds: 1 },
+      ];
 
-function formatTimeAgo(dateStr) {
-  const date = new Date(dateStr)
-  const now = new Date()
-  const diffInHours = Math.floor((now - date) / (1000 * 60 * 60))
-  return `${diffInHours}h ago`
-}
+      for (const interval of intervals) {
+        const count = Math.floor(seconds / interval.seconds);
+        if (count >= 1) {
+          return `${count} ${interval.label}${count > 1 ? 's' : ''} ago`;
+        }
+      }
+      return 'just now';
+    }
 
-onMounted(async () => {
-  const res = await fetchNui('getMethrunScores')
-  scores.value = res || []
-})
-</script>
+    function updateSidebar(levels) {
+      const sidebar = document.getElementById('sidebar')
+      sidebar.innerHTML = ''
+      levels.forEach(level => {
+        const item = document.createElement('div')
+        item.classList.add('sidebar-item')
+        if (level === currentLevel) item.classList.add('active')
+        item.innerText = 'Level ' + level
+        item.onclick = () => {
+          currentLevel = level
+          updateBoard()
+          updateSidebar(levels)
+        }
+        sidebar.appendChild(item)
+      })
+    }
 
-<style scoped>
-.scoreboard {
-  display: flex;
-  background: #1a2634;
-  color: #fff;
-  font-family: 'Segoe UI', sans-serif;
-  min-height: 600px;
-  padding: 20px;
-}
+    function updateBoard() {
+      const table = document.getElementById('score-table')
+      const title = document.getElementById('board-title')
+      const filtered = allScores.filter(s => s.level === currentLevel)
+      table.innerHTML = ''
+      title.innerText = 'Top 10 - Level ' + currentLevel
+      filtered.slice(0, 10).forEach((entry, index) => {
+        const row = document.createElement('tr')
+        row.innerHTML = `
+          <td>#${index + 1}</td>
+          <td>${entry.time_taken}</td>
+          <td>${entry.playerName || entry.citizenid}</td>
+          <td>${timeAgo(entry.timestamp)}</td>
+        `
+        table.appendChild(row)
+      })
+    }
 
-.sidebar {
-  width: 240px;
-  background: rgba(0, 0, 0, 0.2);
-  padding: 1.5rem;
-  border-radius: 8px;
-  margin-right: 20px;
-}
+    function closeBoard() {
+      fetch(`https://${GetParentResourceName()}/closeMethrunBoard`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({})
+      }).then(() => {
+        document.getElementById('scoreboard').style.display = 'none'
+      })
+    }
 
-.sidebar-title {
-  color: #00ffd9;
-  margin-bottom: 1.5rem;
-  font-size: 1.2rem;
-  font-weight: 500;
-}
-
-.sidebar-item {
-  padding: 0.75rem 1rem;
-  margin-bottom: 0.5rem;
-  border-radius: 4px;
-  cursor: pointer;
-  background: rgba(255, 255, 255, 0.05);
-  transition: all 0.2s;
-  color: #8b9bb4;
-}
-
-.sidebar-item.active,
-.sidebar-item:hover {
-  background: #00ffd9;
-  color: #1a2634;
-}
-
-.leaderboard {
-  flex: 1;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 8px;
-  padding: 2rem;
-}
-
-.leaderboard-title {
-  color: #00ffd9;
-  font-size: 2rem;
-  text-align: center;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-}
-
-.leaderboard-subtitle {
-  color: #8b9bb4;
-  text-align: center;
-  margin-bottom: 2rem;
-  font-size: 0.9rem;
-}
-
-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0 0.5rem;
-}
-
-th {
-  color: #00ffd9;
-  font-weight: 500;
-  padding: 1rem;
-  text-align: left;
-  text-transform: uppercase;
-  font-size: 0.9rem;
-}
-
-td {
-  padding: 1rem;
-  background: rgba(255, 255, 255, 0.03);
-  color: #8b9bb4;
-}
-
-tr td:first-child {
-  border-top-left-radius: 4px;
-  border-bottom-left-radius: 4px;
-}
-
-tr td:last-child {
-  border-top-right-radius: 4px;
-  border-bottom-right-radius: 4px;
-}
-
-.rank {
-  color: #ffd700;
-  font-weight: 500;
-}
-
-.length {
-  color: #00ffd9;
-  font-weight: 500;
-}
-
-.player {
-  color: #ffffff;
-}
-
-.time {
-  color: #8b9bb4;
-  font-size: 0.9rem;
-}
-</style>
+    window.addEventListener("message", function (event) {
+      if (event.data.action === "showMethrunBoard") {
+        allScores = event.data.scores || []
+        const levels = [...new Set(allScores.map(s => s.level))].sort((a, b) => a - b)
+        currentLevel = levels[0] || 1
+        updateSidebar(levels)
+        updateBoard()
+        document.getElementById('scoreboard').style.display = 'flex'
+      }
+    })
+  </script>
+</body>
+</html>
