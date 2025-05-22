@@ -100,7 +100,7 @@
       font-weight: 500;
     }
 
-    .length {
+    .time {
       color: #00ffd9;
       font-weight: 500;
     }
@@ -109,7 +109,7 @@
       color: #ffffff;
     }
 
-    .time {
+    .date {
       color: #8b9bb4;
       font-size: 0.9rem;
     }
@@ -118,21 +118,21 @@
 <body>
   <div id="scoreboard" class="scoreboard" style="display: none;">
     <div class="sidebar">
-      <h3 class="sidebar-title">Fish Species</h3>
+      <h3 class="sidebar-title">Methrun Levels</h3>
       <div id="sidebar"></div>
     </div>
 
     <div class="leaderboard">
-      <h2 id="board-title" class="leaderboard-title">FISH LENGTH LEADERBOARD</h2>
-      <p class="leaderboard-subtitle">The largest fish that have been caught, and the anglers who caught them!</p>
+      <h2 id="board-title" class="leaderboard-title">METHRUN LEADERBOARD</h2>
+      <p class="leaderboard-subtitle">Top times for each level of the methrun!</p>
       
       <table>
         <thead>
           <tr>
             <th>Rank</th>
-            <th>Length</th>
-            <th>Angler</th>
-            <th>Caught</th>
+            <th>Time (s)</th>
+            <th>Player</th>
+            <th>Date</th>
           </tr>
         </thead>
         <tbody id="score-table">
@@ -194,10 +194,10 @@
       filtered.slice(0, 10).forEach((entry, index) => {
         const row = document.createElement('tr')
         row.innerHTML = `
-          <td>#${index + 1}</td>
-          <td>${entry.time_taken}</td>
-          <td>${entry.playerName || entry.citizenid}</td>
-          <td>${timeAgo(entry.timestamp)}</td>
+          <td class="rank">#${index + 1}</td>
+          <td class="time">${entry.time_taken}</td>
+          <td class="player">${entry.playerName || entry.citizenid}</td>
+          <td class="date">${timeAgo(entry.timestamp)}</td>
         `
         table.appendChild(row)
       })
