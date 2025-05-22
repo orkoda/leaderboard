@@ -1,6 +1,7 @@
 <template>
   <div class="scoreboard">
     <div class="sidebar">
+      <h3 class="sidebar-title">Fish Species</h3>
       <div
         v-for="level in levels"
         :key="level"
@@ -12,22 +13,24 @@
     </div>
 
     <div class="leaderboard">
-      <h2>Top 10 - Level {{ selectedLevel }}</h2>
+      <h2 class="leaderboard-title">FISH LENGTH LEADERBOARD</h2>
+      <p class="leaderboard-subtitle">The largest fish that have been caught, and the anglers who caught them!</p>
+      
       <table>
         <thead>
           <tr>
             <th>Rank</th>
-            <th>Time (s)</th>
-            <th>Player</th>
-            <th>Date</th>
+            <th>Length</th>
+            <th>Angler</th>
+            <th>Caught</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="(entry, index) in filteredScores" :key="entry.id">
-            <td>#{{ index + 1 }}</td>
-            <td>{{ entry.time_taken }}</td>
-            <td>{{ entry.citizenid }}</td>
-            <td>{{ formatDate(entry.timestamp) }}</td>
+            <td class="rank">#{{ index + 1 }}</td>
+            <td class="length">{{ entry.time_taken }}"</td>
+            <td class="player">{{ entry.citizenid }}</td>
+            <td class="time">{{ formatTimeAgo(entry.timestamp) }}</td>
           </tr>
         </tbody>
       </table>
@@ -37,11 +40,11 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { fetchNui } from '../utils' // افترض أنك تستخدم NUI مع fetchNui
+import { fetchNui } from '../utils'
 
 const scores = ref([])
 const selectedLevel = ref(1)
-const levels = ref([1, 2, 3, 4, 5]) // يمكنك تحديثها حسب المستويات الموجودة
+const levels = ref([1, 2, 3, 4, 5])
 
 const filteredScores = computed(() => {
   return scores.value
@@ -49,9 +52,11 @@ const filteredScores = computed(() => {
     .sort((a, b) => a.time_taken - b.time_taken)
 })
 
-function formatDate(dateStr) {
+function formatTimeAgo(dateStr) {
   const date = new Date(dateStr)
-  return date.toLocaleDateString() + ' ' + date.toLocaleTimeString()
+  const now = new Date()
+  const diffInHours = Math.floor((now - date) / (1000 * 60 * 60))
+  return `${diffInHours}h ago`
 }
 
 onMounted(async () => {
@@ -63,61 +68,98 @@ onMounted(async () => {
 <style scoped>
 .scoreboard {
   display: flex;
-  background: #0A1929;
+  background: #1a2634;
   color: #fff;
   font-family: 'Segoe UI', sans-serif;
-  border-radius: 12px;
-  overflow: hidden;
+  min-height: 600px;
 }
 
 .sidebar {
-  width: 220px;
-  background: #152A3D;
-  display: flex;
-  flex-direction: column;
-  padding: 1rem;
-  border-right: 1px solid #1E2A3B;
+  width: 240px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 1.5rem;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-title {
+  color: #00ffd9;
+  margin-bottom: 1.5rem;
+  font-size: 1.2rem;
 }
 
 .sidebar-item {
   padding: 0.75rem 1rem;
   margin-bottom: 0.5rem;
-  border-radius: 6px;
+  border-radius: 4px;
   cursor: pointer;
-  background: #1E2A3B;
-  transition: background 0.3s;
+  background: rgba(255, 255, 255, 0.1);
+  transition: all 0.3s;
 }
 
 .sidebar-item.active,
 .sidebar-item:hover {
-  background: #00D1F5;
-  color: #000;
+  background: #00ffd9;
+  color: #1a2634;
 }
 
 .leaderboard {
   flex: 1;
   padding: 2rem;
-  overflow-x: auto;
 }
 
-h2 {
-  margin-bottom: 1rem;
-  color: #00D1F5;
+.leaderboard-title {
+  color: #00ffd9;
+  font-size: 2rem;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.leaderboard-subtitle {
+  color: #8b9bb4;
+  text-align: center;
+  margin-bottom: 2rem;
 }
 
 table {
   width: 100%;
-  border-collapse: collapse;
-}
-
-th, td {
-  padding: 0.75rem;
-  text-align: left;
-  border-bottom: 1px solid #1E2A3B;
+  border-collapse: separate;
+  border-spacing: 0 0.5rem;
 }
 
 th {
-  color: #00D1F5;
-  font-weight: 600;
+  color: #00ffd9;
+  font-weight: 500;
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+td {
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+tr td:first-child {
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+
+tr td:last-child {
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+
+.rank {
+  color: #ffd700;
+  font-weight: bold;
+}
+
+.length {
+  color: #00ffd9;
+  font-weight: bold;
+}
+
+.time {
+  color: #8b9bb4;
 }
 </style>
