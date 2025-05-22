@@ -1,0 +1,123 @@
+<template>
+  <div class="scoreboard">
+    <div class="sidebar">
+      <div
+        v-for="level in levels"
+        :key="level"
+        :class="['sidebar-item', { active: selectedLevel === level }]"
+        @click="selectedLevel = level"
+      >
+        Level {{ level }}
+      </div>
+    </div>
+
+    <div class="leaderboard">
+      <h2>Top 10 - Level {{ selectedLevel }}</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Time (s)</th>
+            <th>Player</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(entry, index) in filteredScores" :key="entry.id">
+            <td>#{{ index + 1 }}</td>
+            <td>{{ entry.time_taken }}</td>
+            <td>{{ entry.citizenid }}</td>
+            <td>{{ formatDate(entry.timestamp) }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import { fetchNui } from '../utils' // افترض أنك تستخدم NUI مع fetchNui
+
+const scores = ref([])
+const selectedLevel = ref(1)
+const levels = ref([1, 2, 3, 4, 5]) // يمكنك تحديثها حسب المستويات الموجودة
+
+const filteredScores = computed(() => {
+  return scores.value
+    .filter((entry) => entry.level === selectedLevel.value)
+    .sort((a, b) => a.time_taken - b.time_taken)
+})
+
+function formatDate(dateStr) {
+  const date = new Date(dateStr)
+  return date.toLocaleDateString() + ' ' + date.toLocaleTimeString()
+}
+
+onMounted(async () => {
+  const res = await fetchNui('getMethrunScores')
+  scores.value = res || []
+})
+</script>
+
+<style scoped>
+.scoreboard {
+  display: flex;
+  background: #0A1929;
+  color: #fff;
+  font-family: 'Segoe UI', sans-serif;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.sidebar {
+  width: 220px;
+  background: #152A3D;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  border-right: 1px solid #1E2A3B;
+}
+
+.sidebar-item {
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  background: #1E2A3B;
+  transition: background 0.3s;
+}
+
+.sidebar-item.active,
+.sidebar-item:hover {
+  background: #00D1F5;
+  color: #000;
+}
+
+.leaderboard {
+  flex: 1;
+  padding: 2rem;
+  overflow-x: auto;
+}
+
+h2 {
+  margin-bottom: 1rem;
+  color: #00D1F5;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #1E2A3B;
+}
+
+th {
+  color: #00D1F5;
+  font-weight: 600;
+}
+</style>
