@@ -20,14 +20,74 @@
     }
 
     .scoreboard {
-      background: linear-gradient(180deg, #1a2634 0%, #131e2c 100%);
+      display: flex;
+      background: linear-gradient(145deg, #1a2634 0%, #131e2c 100%);
       color: #fff;
-      width: 600px;
+      width: 900px;
       border-radius: 12px;
       box-shadow: 0 8px 32px rgba(0, 209, 245, 0.15);
       border: 1px solid rgba(0, 209, 245, 0.1);
       backdrop-filter: blur(10px);
       overflow: hidden;
+    }
+
+    .sidebar {
+      width: 220px;
+      background: rgba(0, 0, 0, 0.2);
+      padding: 1.5rem;
+      border-right: 1px solid rgba(0, 209, 245, 0.1);
+    }
+
+    .sidebar-title {
+      color: #00D1F5;
+      margin-bottom: 1.5rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sidebar-title i {
+      font-size: 1rem;
+    }
+
+    .sidebar-item {
+      padding: 0.8rem 1rem;
+      margin-bottom: 0.5rem;
+      border-radius: 6px;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.03);
+      transition: all 0.3s ease;
+      color: #8b9bb4;
+      font-size: 0.9rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sidebar-item i {
+      font-size: 0.8rem;
+      opacity: 0.7;
+    }
+
+    .sidebar-item.active,
+    .sidebar-item:hover {
+      background: #00D1F5;
+      color: #1a2634;
+      transform: translateY(-1px);
+    }
+
+    .sidebar-item.active i,
+    .sidebar-item:hover i {
+      opacity: 1;
+    }
+
+    .main-content {
+      flex: 1;
     }
 
     .header {
@@ -44,6 +104,10 @@
       text-transform: uppercase;
       letter-spacing: 2px;
       margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
     }
 
     .leaderboard-subtitle {
@@ -126,24 +190,34 @@
 </head>
 <body>
   <div id="scoreboard" class="scoreboard" style="display: none;">
-    <div class="header">
-      <h2 class="leaderboard-title">METHRUN LEADERBOARD</h2>
-      <p class="leaderboard-subtitle">Top times for each level of the methrun!</p>
+    <div class="sidebar">
+      <h3 class="sidebar-title"><i class="fas fa-layer-group"></i> Methrun Levels</h3>
+      <div id="sidebar"></div>
     </div>
 
-    <div class="content">
-      <div class="table-header">
-        <div><i class="fas fa-medal"></i> RANK</div>
-        <div><i class="fas fa-stopwatch"></i> TIME (S)</div>
-        <div><i class="fas fa-user"></i> PLAYER</div>
-        <div><i class="fas fa-calendar"></i> DATE</div>
+    <div class="main-content">
+      <div class="header">
+        <h2 id="board-title" class="leaderboard-title">
+          <i class="fas fa-trophy"></i> METHRUN LEADERBOARD
+        </h2>
+        <p class="leaderboard-subtitle">Top times for each level of the methrun!</p>
       </div>
-      <div id="score-table"></div>
+
+      <div class="content">
+        <div class="table-header">
+          <div><i class="fas fa-medal"></i> RANK</div>
+          <div><i class="fas fa-stopwatch"></i> TIME (S)</div>
+          <div><i class="fas fa-user"></i> PLAYER</div>
+          <div><i class="fas fa-calendar"></i> DATE</div>
+        </div>
+        <div id="score-table"></div>
+      </div>
     </div>
   </div>
 
   <script>
     let allScores = [];
+    let currentLevel = 1;
 
     function timeAgo(timestamp) {
       const now = new Date();
@@ -168,10 +242,30 @@
       return 'just now';
     }
 
+    function updateSidebar(levels) {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.innerHTML = '';
+      levels.forEach(level => {
+        const item = document.createElement('div');
+        item.classList.add('sidebar-item');
+        if (level === currentLevel) item.classList.add('active');
+        item.innerHTML = `<i class="fas fa-map-marker-alt"></i> Level ${level}`;
+        item.onclick = () => {
+          currentLevel = level;
+          updateBoard();
+          updateSidebar(levels);
+        };
+        sidebar.appendChild(item);
+      });
+    }
+
     function updateBoard() {
       const table = document.getElementById('score-table');
+      const title = document.getElementById('board-title');
+      const filtered = allScores.filter(s => s.level === currentLevel);
       table.innerHTML = '';
-      allScores.slice(0, 10).forEach((entry, index) => {
+      title.innerHTML = `<i class="fas fa-trophy"></i> METHRUN LEADERBOARD - LEVEL ${currentLevel}`;
+      filtered.slice(0, 10).forEach((entry, index) => {
         const row = document.createElement('div');
         row.className = 'table-row';
         row.innerHTML = `
@@ -197,6 +291,9 @@
     window.addEventListener("message", function (event) {
       if (event.data.action === "showMethrunBoard") {
         allScores = event.data.scores || [];
+        const levels = [...new Set(allScores.map(s => s.level))].sort((a, b) => a - b);
+        currentLevel = levels[0] || 1;
+        updateSidebar(levels);
         updateBoard();
         document.getElementById('scoreboard').style.display = 'block';
       }
