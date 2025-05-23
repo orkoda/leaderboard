@@ -23,7 +23,7 @@
       display: flex;
       background: linear-gradient(145deg, #1a2634 0%, #131e2c 100%);
       color: #fff;
-      width: 900px;
+      width: 800px;
       border-radius: 12px;
       box-shadow: 0 8px 32px rgba(0, 209, 245, 0.15);
       border: 1px solid rgba(0, 209, 245, 0.1);
@@ -32,7 +32,7 @@
     }
 
     .sidebar {
-      width: 220px;
+      width: 200px;
       background: rgba(0, 0, 0, 0.2);
       padding: 1.5rem;
       border-right: 1px solid rgba(0, 209, 245, 0.1);
@@ -48,10 +48,6 @@
       display: flex;
       align-items: center;
       gap: 8px;
-    }
-
-    .sidebar-title i {
-      font-size: 1rem;
     }
 
     .sidebar-item {
@@ -78,7 +74,7 @@
     .sidebar-item:hover {
       background: #00D1F5;
       color: #1a2634;
-      transform: translateY(-1px);
+      transform: translateX(5px);
     }
 
     .sidebar-item.active i,
@@ -88,6 +84,8 @@
 
     .main-content {
       flex: 1;
+      display: flex;
+      flex-direction: column;
     }
 
     .header {
@@ -118,11 +116,12 @@
 
     .content {
       padding: 1rem;
+      flex: 1;
     }
 
     .table-header {
       display: grid;
-      grid-template-columns: 1fr 1fr 2fr 1.5fr;
+      grid-template-columns: 0.8fr 0.8fr 2fr 1.2fr;
       padding: 1rem;
       color: #00D1F5;
       font-size: 0.75rem;
@@ -134,13 +133,14 @@
 
     .table-row {
       display: grid;
-      grid-template-columns: 1fr 1fr 2fr 1.5fr;
+      grid-template-columns: 0.8fr 0.8fr 2fr 1.2fr;
       padding: 1rem;
       margin: 0.5rem 0;
       background: rgba(255, 255, 255, 0.03);
       border-radius: 8px;
       transition: all 0.3s ease;
       cursor: pointer;
+      align-items: center;
     }
 
     .table-row:hover {
@@ -206,7 +206,7 @@
       <div class="content">
         <div class="table-header">
           <div><i class="fas fa-medal"></i> RANK</div>
-          <div><i class="fas fa-stopwatch"></i> TIME (S)</div>
+          <div><i class="fas fa-stopwatch"></i> TIME</div>
           <div><i class="fas fa-user"></i> PLAYER</div>
           <div><i class="fas fa-calendar"></i> DATE</div>
         </div>
